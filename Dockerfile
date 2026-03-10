@@ -8,10 +8,8 @@ RUN npm run build
 
 FROM node:20-alpine AS runner
 
-# Install ffmpeg and yt-dlp
-RUN apk add --no-cache ffmpeg curl \
-  && curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp \
-  && chmod +x /usr/local/bin/yt-dlp
+RUN apk add --no-cache ffmpeg python3 py3-pip \
+  && pip3 install --break-system-packages yt-dlp
 
 WORKDIR /app
 
