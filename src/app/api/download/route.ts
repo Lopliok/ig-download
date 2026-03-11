@@ -94,6 +94,7 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (err) {
+    console.log("Error during download:", err);
     const message = err instanceof Error ? err.message : "Neznámá chyba";
     const userMessage = message.includes("Private")
       ? "Tento příspěvek je soukromý"
