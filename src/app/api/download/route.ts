@@ -59,10 +59,18 @@ export async function POST(req: NextRequest) {
     const outputTemplate = join(tmpDir, "%(title).50B.%(ext)s");
 
     const cookiesArgs: string[] = [];
-    const cookiesContent = process.env.INSTAGRAM_COOKIES;
-    if (cookiesContent) {
+    const sessionid = process.env.INSTAGRAM_SESSIONID;
+    const csrftoken = process.env.INSTAGRAM_CSRFTOKEN;
+    const dsUserId = process.env.INSTAGRAM_DS_USER_ID;
+    if (sessionid) {
+      const lines = [
+        "# Netscape HTTP Cookie File",
+        `.instagram.com\tTRUE\t/\tTRUE\t2147483647\tsessionid\t${sessionid}`,
+        csrftoken ? `.instagram.com\tTRUE\t/\tFALSE\t2147483647\tcsrftoken\t${csrftoken}` : null,
+        dsUserId ? `.instagram.com\tTRUE\t/\tFALSE\t2147483647\tds_user_id\t${dsUserId}` : null,
+      ].filter(Boolean).join("\n");
       const cookiesFile = join(tmpDir, "cookies.txt");
-      writeFileSync(cookiesFile, cookiesContent);
+      writeFileSync(cookiesFile, lines);
       cookiesArgs.push("--cookies", cookiesFile);
     }
 
