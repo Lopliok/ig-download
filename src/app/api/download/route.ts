@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { spawn } from "child_process";
-import { mkdtempSync, rmSync, readdirSync, readFileSync } from "fs";
+import { mkdtempSync, rmSync, readdirSync, readFileSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 
@@ -58,6 +58,14 @@ export async function POST(req: NextRequest) {
   try {
     const outputTemplate = join(tmpDir, "%(title).50B.%(ext)s");
 
+    const cookiesArgs: string[] = [];
+    const cookiesContent = process.env.INSTAGRAM_COOKIES;
+    if (cookiesContent) {
+      const cookiesFile = join(tmpDir, "cookies.txt");
+      writeFileSync(cookiesFile, cookiesContent);
+      cookiesArgs.push("--cookies", cookiesFile);
+    }
+
     const args = isAudio
       ? [
           "-x",
@@ -65,6 +73,7 @@ export async function POST(req: NextRequest) {
           "--audio-quality", "0",
           "-o", outputTemplate,
           "--no-playlist",
+          ...cookiesArgs,
           url,
         ]
       : [
@@ -72,6 +81,7 @@ export async function POST(req: NextRequest) {
           "--merge-output-format", "mp4",
           "-o", outputTemplate,
           "--no-playlist",
+          ...cookiesArgs,
           url,
         ];
 
